@@ -10,11 +10,12 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
             android:layout_marginBottom="2dp"
@@ -26,15 +27,17 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
                 android:clipToPadding="false"
                 android:gravity="center"
                 android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/member_name"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="3"
+                    android:layout_weight="2"
                     android:gravity="clip_horizontal"
                     android:paddingLeft="5dp"
                     android:paddingRight="5dp"
@@ -46,7 +49,7 @@
                     android:id="@+id/member_position"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="5"
+                    android:layout_weight="2"
                     android:gravity="center"
                     android:text="@{member.position}"
                     android:textColor="#000000"
@@ -54,7 +57,7 @@
 
                 <TextView
                     android:id="@+id/member_inoutStatus"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/out"

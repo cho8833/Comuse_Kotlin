@@ -1,10 +1,8 @@
-package com.example.comuse_kotlin
+package com.example.comuse_kotlin.viewModel
 
 import android.app.Application
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.comuse_kotlin.viewModel.MembersViewModel
 import java.lang.IllegalArgumentException
 
 

@@ -55,5 +55,5 @@ dependencies {
     implementation "androidx.room:room-rxjava2:$room_version"
     testImplementation "androidx.room:room-testing:$room_version"
     kapt 'com.android.databinding:compiler:3.5.3'
-
+    implementation 'com.google.android.gms:play-services-auth:18.0.0'
 }

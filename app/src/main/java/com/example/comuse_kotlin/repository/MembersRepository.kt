@@ -1,11 +1,18 @@
 package com.example.comuse_kotlin.repository
 
 import android.app.Application
+import android.os.AsyncTask
 import androidx.lifecycle.MutableLiveData
 import com.example.comuse_kotlin.dao.MembersDao
 import com.example.comuse_kotlin.dataModel.Member
+import com.example.comuse_kotlin.fireStoreService.FirebaseVar
 import com.example.comuse_kotlin.fireStoreService.MembersServiceManager
+import com.example.comuse_kotlin.fireStoreService.UserMemberServiceManager
 import com.example.comuse_kotlin.room.RoomDataBase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MembersRepository(private val application: Application) {
 
@@ -17,27 +24,39 @@ class MembersRepository(private val application: Application) {
         RoomDataBase.getInstance(application)!!.membersDao()
     }
 
-    fun getMembers(): MutableLiveData<ArrayList<Member>> {
-        val members: MutableLiveData<ArrayList<Member>> = MutableLiveData()
-        val runnable: Runnable = Runnable {
-            val membersList = membersDao.loadMembers()
-            val membersToArray: ArrayList<Member> = ArrayList()
-            membersList.value?.let { membersToArray.addAll(it) }
-            members.postValue(membersToArray)
-        }
-        Thread(runnable).start()
-        membersServiceManager.getMembersFromFireStore(members)
-        return members
-    }
+    // Members LiveData
+    var members: MutableLiveData<ArrayList<Member>> = MutableLiveData()
 
-    fun updateMember(update: Member) {
-        membersDao.updateMember(update)
+    fun getAllMembers() {
+        // FireStore 의 snapshot 리스너가 활성화 되어잇으면 따로 데이터 가져오기 작업을 하지 않는다.
+        FirebaseVar.memberListener?.let {
+            return
+        }
+        // FireStore 의 snapshot 리스너가 활성화 되어있지 않을 때 데이터를 local 과 server 에서 가져온다.
+        CoroutineScope(Dispatchers.IO).launch {
+            var membersArray = ArrayList<Member>()
+            membersArray.addAll(membersDao.loadMembers())
+            members.postValue(membersArray)
+        }
+        membersServiceManager.getMembersFromFireStore(members)
     }
-    fun addMember(add: Member) {
-        membersDao.addMember(add)
+    fun getUserData() {
+
     }
-    fun removeMember(remove: Member) {
-        membersDao.deleteMember(remove)
+    fun addMemberToLocal(member: Member) {
+        CoroutineScope(Dispatchers.IO).launch {
+            membersDao.addMember(member)
+        }
+    }
+    fun updateMemberToLocal(member: Member) {
+        CoroutineScope(Dispatchers.IO).launch {
+            membersDao.updateMember(member)
+        }
+    }
+    fun removeMemberToLocal(member: Member) {
+        CoroutineScope(Dispatchers.IO).launch {
+            membersDao.deleteMember(member)
+        }
     }
 
 }

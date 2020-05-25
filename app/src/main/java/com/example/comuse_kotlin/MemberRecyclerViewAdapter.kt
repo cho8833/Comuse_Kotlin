@@ -1,12 +1,13 @@
 package com.example.comuse_kotlin
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.comuse_kotlin.dataModel.Member
 import com.example.comuse_kotlin.databinding.MemberItemLayoutBinding
 
-class MemberRecyclerViewAdapter: RecyclerView.Adapter<MemberRecyclerViewAdapter.ViewHolder>() {
+class MemberRecyclerViewAdapter(private var context: Context): RecyclerView.Adapter<MemberRecyclerViewAdapter.ViewHolder>() {
     var members: ArrayList<Member> = ArrayList()
 
     public fun setMembersList(members: ArrayList<Member>) {
@@ -14,7 +15,7 @@ class MemberRecyclerViewAdapter: RecyclerView.Adapter<MemberRecyclerViewAdapter.
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(MemberItemLayoutBinding.inflate(LayoutInflater.from(parent.context)))
+        return ViewHolder(MemberItemLayoutBinding.inflate(LayoutInflater.from(context)))
     }
 
     override fun getItemCount(): Int {
@@ -26,10 +27,11 @@ class MemberRecyclerViewAdapter: RecyclerView.Adapter<MemberRecyclerViewAdapter.
     }
     inner class ViewHolder(private var binding: MemberItemLayoutBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bindItem(item: Member) {
-            binding.memberName.text = item.name
-            binding.memberPosition.text = item.position
-            if (item.inoutStatus) { binding.memberInoutStatus.text = "in" }
-            else { binding.memberInoutStatus.text = "out" }
+            binding.apply {
+                member = item
+                if (item.inoutStatus) { memberInoutStatus.text = "in" }
+                else { memberInoutStatus.text = "out" }
+            }
         }
 
     }

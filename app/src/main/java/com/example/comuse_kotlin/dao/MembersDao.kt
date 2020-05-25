@@ -7,20 +7,19 @@ import com.example.comuse_kotlin.dataModel.Member
 @Dao
 interface MembersDao {
     @Insert
-    fun addMembers(members: List<Member>)
+    suspend fun addMembers(members: List<Member>)
 
     @Query("SELECT * FROM member")
-    fun loadMembers(): LiveData<List<Member>>
-
+    suspend fun loadMembers(): List<Member>
     @Delete
-    fun deleteMember(member: Member)
+    suspend fun deleteMember(member: Member)
 
     @Update
-    fun updateMember(member: Member)
+    suspend fun updateMember(member: Member)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun addMember(member: Member)
+    suspend fun addMember(member: Member)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun saveMembers(members: List<Member>)
+    suspend fun saveMembers(members: List<Member>)
 }

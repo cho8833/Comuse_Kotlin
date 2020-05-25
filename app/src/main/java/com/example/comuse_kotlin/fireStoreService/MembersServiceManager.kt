@@ -17,7 +17,7 @@ class MembersServiceManager(private val application: Application) {
     fun getMembersFromFireStore(members: MutableLiveData<ArrayList<Member>>) {
         FirebaseVar.user?.let { _ ->
             FirebaseVar.dbFIB?.let { db ->
-                db?.collection("Members")?.addSnapshotListener { snapshot, e ->
+                FirebaseVar.memberListener = db?.collection("Members")?.addSnapshotListener { snapshot, e ->
                     if (e != null) {
                         Log.d(TAG, "SnapShot Listen Error", e)
                         return@addSnapshotListener
@@ -31,7 +31,7 @@ class MembersServiceManager(private val application: Application) {
                                     membersList.add(member)
 
                                     //notify repository
-                                    membersRepository.addMember(member)
+                                    membersRepository.addMemberToLocal(member)
                                 }
                                 DocumentChange.Type.MODIFIED -> {
                                     for (compare: Member in membersList) {
@@ -41,7 +41,7 @@ class MembersServiceManager(private val application: Application) {
                                             membersList.add(index, member)
 
                                             //notify repository
-                                            membersRepository.updateMember(member)
+                                            membersRepository.updateMemberToLocal(member)
                                         }
                                     }
                                 }
@@ -52,7 +52,7 @@ class MembersServiceManager(private val application: Application) {
                                             membersList.removeAt(index)
 
                                             //notify repository
-                                            membersRepository.removeMember(member)
+                                            membersRepository.removeMemberToLocal(member)
                                         }
                                     }
                                 }
