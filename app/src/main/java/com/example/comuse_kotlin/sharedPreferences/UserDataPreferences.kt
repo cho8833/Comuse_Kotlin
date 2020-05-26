@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.example.comuse_kotlin.dataModel.Member
 
-class userDataPreferences(private val context: Context) {
+class UserDataPreferences(private val context: Context) {
     var sharedPreferences: SharedPreferences = context.getSharedPreferences("userData",Context.MODE_PRIVATE)
 
     fun saveUserData(member: Member) {

@@ -5,20 +5,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.comuse_kotlin.MemberRecyclerViewAdapter
+import com.example.comuse_kotlin.dataModel.Member
 import com.example.comuse_kotlin.databinding.FragmentMembersBinding
 import com.example.comuse_kotlin.viewModel.MembersViewModel
+import com.example.comuse_kotlin.viewModel.UserDataViewModel
 
-/**
- * A simple [Fragment] subclass.
- */
 class MembersFragment : Fragment() {
     private lateinit var membersViewModel: MembersViewModel
+    private lateinit var userDataViewModel: UserDataViewModel
     lateinit var binding: FragmentMembersBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,6 +23,7 @@ class MembersFragment : Fragment() {
         //MainActivity 에서 만든 ViewModel 을 받아옴
         val factory: ViewModelProvider.Factory = ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
         membersViewModel = ViewModelProvider((context as ViewModelStoreOwner?)!!, factory).get(MembersViewModel::class.java)
+        userDataViewModel = ViewModelProvider((context as ViewModelStoreOwner?)!!, factory).get(UserDataViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -44,14 +42,16 @@ class MembersFragment : Fragment() {
                 adapter.notifyDataSetChanged()
             }
         })
-
+        userDataViewModel.getUserData().observe(this.context as LifecycleOwner, Observer {
+            updateUserInfo(it)
+        })
         // Inflate the layout for this fragment
         return binding.root
     }
-
-    override fun onStart() {
-        super.onStart()
-
+    fun updateUserInfo(member: Member) {
+        binding.userMemberData = member
+        if (member.inoutStatus) { binding.buttonInOut.text = "in" }
+        else { binding.buttonInOut.text = "out" }
     }
 
 }

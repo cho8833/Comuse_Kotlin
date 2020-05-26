@@ -40,9 +40,7 @@ class MembersRepository(private val application: Application) {
         }
         membersServiceManager.getMembersFromFireStore(members)
     }
-    fun getUserData() {
 
-    }
     fun addMemberToLocal(member: Member) {
         CoroutineScope(Dispatchers.IO).launch {
             membersDao.addMember(member)

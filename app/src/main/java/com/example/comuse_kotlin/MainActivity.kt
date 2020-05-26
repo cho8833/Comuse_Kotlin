@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
                 application
             )
         memberFactory.create(MembersViewModel::class.java)
-
+        
 
         // BottomNavigationView Settings
         val fragmentManager: FragmentManager = supportFragmentManager

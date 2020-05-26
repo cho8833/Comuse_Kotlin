@@ -5,6 +5,20 @@
     <string name="settings">Settings</string>
     <string name="in">in</string>
     <string name="out">out</string>
+    <string-array name="my_header_title">
+        <item></item>
+        <item>MON</item>
+        <item>TUE</item>
+        <item>WED</item>
+        <item>THU</item>
+        <item>FRI</item>
+        <item>SAT</item>
+        <item>SUN</item>
+    </string-array>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="login_info">Login Info</string>
+    <string name="sign_in">sign In</string>
+    <string name="position">position</string>
+    <string name="edit">edit</string>
 </resources>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
@@ -10,12 +11,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".fragment.TimeTableFragment">
-
-        <!-- TODO: Update blank fragment layout -->
-        <TextView
+        <com.github.tlaabs.timetableview.TimetableView
+            android:id="@+id/timetable"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="@string/hello_blank_fragment" />
+            app:cell_height="50dp"
+            app:column_count="8"
+            app:header_highlight_image_size="36dp"
+            app:header_highlight_type="image"
 
+            app:header_title="@array/my_header_title"
+            app:row_count="18"
+            app:side_cell_width="30dp"
+            app:start_time="9" />
     </FrameLayout>
 </layout>

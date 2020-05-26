@@ -1,11 +1,20 @@
 package com.example.comuse_kotlin.fireStoreService
 
+
+import android.app.Application
+import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import com.example.comuse_kotlin.dataModel.Member
+import com.example.comuse_kotlin.repository.UserDataRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-class UserMemberServiceManager {
-    private var userData: Member? = null
+class UserMemberServiceManager(context: Context) {
 
+    private val repository: UserDataRepository by lazy {
+        UserDataRepository(context)
+    }
     fun getUserDataFromFireStore(userMemberData: MutableLiveData<Member>) {
         FirebaseVar.user?.let {  fireStoreUser ->
             FirebaseVar.dbFIB?.let { db ->
@@ -13,11 +22,17 @@ class UserMemberServiceManager {
                     .get()
                     .addOnSuccessListener { documentSnapshot ->
                         documentSnapshot.toObject(Member::class.java)?.let { memberData ->
-                            // get document success
-                            userData = memberData
-                            userMemberData.postValue(userData)
+                            // get document success but no document
+                            if (memberData == null) {
+                                repository.addUserData(Member(fireStoreUser.displayName!!,fireStoreUser.email!!,"",false))
+                            } else {
+                                // get document success
+                                userMemberData.postValue(memberData)
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    repository.saveUserDataToLocal(memberData)
+                                }
+                            }
                         }
-                        // get document success, but data is null
                     }
                     .addOnFailureListener { exception ->
                         // failed getting document
