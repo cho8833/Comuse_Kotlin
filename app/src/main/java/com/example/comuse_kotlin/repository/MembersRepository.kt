@@ -29,7 +29,7 @@ class MembersRepository(private val application: Application) {
 
     fun getAllMembers() {
         // FireStore 의 snapshot 리스너가 활성화 되어잇으면 따로 데이터 가져오기 작업을 하지 않는다.
-        FirebaseVar.memberListener?.let {
+        if (FirebaseVar.memberListener != null) {
             return
         }
         // FireStore 의 snapshot 리스너가 활성화 되어있지 않을 때 데이터를 local 과 server 에서 가져온다.

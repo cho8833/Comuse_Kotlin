@@ -8,6 +8,9 @@ import com.example.comuse_kotlin.dataModel.Member
 import com.example.comuse_kotlin.repository.MembersRepository
 
 import com.google.firebase.firestore.DocumentChange
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MembersServiceManager(private val application: Application) {
     private var membersList: ArrayList<Member> = ArrayList()
@@ -17,7 +20,7 @@ class MembersServiceManager(private val application: Application) {
     fun getMembersFromFireStore(members: MutableLiveData<ArrayList<Member>>) {
         FirebaseVar.user?.let { _ ->
             FirebaseVar.dbFIB?.let { db ->
-                FirebaseVar.memberListener = db?.collection("Members")?.addSnapshotListener { snapshot, e ->
+                FirebaseVar.memberListener = db.collection("Members").addSnapshotListener { snapshot, e ->
                     if (e != null) {
                         Log.d(TAG, "SnapShot Listen Error", e)
                         return@addSnapshotListener
@@ -31,7 +34,8 @@ class MembersServiceManager(private val application: Application) {
                                     membersList.add(member)
 
                                     //notify repository
-                                    membersRepository.addMemberToLocal(member)
+                                    CoroutineScope(Dispatchers.IO).launch { membersRepository.addMemberToLocal(member) }
+
                                 }
                                 DocumentChange.Type.MODIFIED -> {
                                     for (compare: Member in membersList) {
@@ -41,7 +45,8 @@ class MembersServiceManager(private val application: Application) {
                                             membersList.add(index, member)
 
                                             //notify repository
-                                            membersRepository.updateMemberToLocal(member)
+                                            CoroutineScope(Dispatchers.IO).launch { membersRepository.updateMemberToLocal(member) }
+
                                         }
                                     }
                                 }
@@ -52,7 +57,8 @@ class MembersServiceManager(private val application: Application) {
                                             membersList.removeAt(index)
 
                                             //notify repository
-                                            membersRepository.removeMemberToLocal(member)
+                                            CoroutineScope(Dispatchers.IO).launch { membersRepository.removeMemberToLocal(member) }
+
                                         }
                                     }
                                 }
