@@ -22,8 +22,8 @@ class MembersFragment : Fragment() {
         super.onCreate(savedInstanceState)
         //MainActivity 에서 만든 ViewModel 을 받아옴
         val factory: ViewModelProvider.Factory = ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
-        membersViewModel = ViewModelProvider((context as ViewModelStoreOwner?)!!, factory).get(MembersViewModel::class.java)
-        userDataViewModel = ViewModelProvider((context as ViewModelStoreOwner?)!!, factory).get(UserDataViewModel::class.java)
+        membersViewModel = ViewModelProvider(activity as ViewModelStoreOwner, factory).get(MembersViewModel::class.java)
+        userDataViewModel = ViewModelProvider(activity as ViewModelStoreOwner, factory).get(UserDataViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -35,14 +35,14 @@ class MembersFragment : Fragment() {
         binding.membersRecyclerView.layoutManager = LinearLayoutManager(this.context)
         binding.membersRecyclerView.adapter = MemberRecyclerViewAdapter(this.context!!)
 
-        membersViewModel.getAllMembers().observe(this.context as LifecycleOwner, Observer {
+        membersViewModel.getAllMembers().observe(activity as LifecycleOwner, Observer {
             var adapter = binding.membersRecyclerView.adapter as MemberRecyclerViewAdapter
             if (adapter != null) {
                 adapter.setMembersList(it)
                 adapter.notifyDataSetChanged()
             }
         })
-        userDataViewModel.getUserData().observe(this.context as LifecycleOwner, Observer {
+        userDataViewModel.getUserData().observe(activity as LifecycleOwner, Observer {
             updateUserInfo(it)
         })
         // Inflate the layout for this fragment

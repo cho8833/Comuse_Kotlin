@@ -17,8 +17,6 @@ import com.example.comuse_kotlin.dataModel.ScheduleData
 import com.example.comuse_kotlin.databinding.FragmentTimeTableBinding
 import com.example.comuse_kotlin.viewModel.SchedulesViewModel
 import com.github.tlaabs.timetableview.Schedule
-import com.github.tlaabs.timetableview.Time
-import com.github.tlaabs.timetableview.TimetableView
 
 
 class TimeTableFragment : Fragment() {
@@ -28,7 +26,7 @@ class TimeTableFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val factory: ViewModelProvider.Factory = ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
-        schedulesViewModel = ViewModelProvider((context as ViewModelStoreOwner?)!!, factory).get(SchedulesViewModel::class.java)
+        schedulesViewModel = ViewModelProvider(activity as ViewModelStoreOwner, factory).get(SchedulesViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -38,7 +36,7 @@ class TimeTableFragment : Fragment() {
         binding = DataBindingUtil.inflate(inflater,R.layout.fragment_time_table,container,false)
 
         // draw TimeTable
-        schedulesViewModel.getAllSchedules().observe(context as LifecycleOwner, Observer {
+        schedulesViewModel.getAllSchedules().observe(activity as LifecycleOwner, Observer {
             binding.timetable.removeAll()
             for(scheduleData: ScheduleData in it) {
                 var scheduleArray = ArrayList<Schedule>()
@@ -52,6 +50,9 @@ class TimeTableFragment : Fragment() {
         binding.addScheduleBtn.setOnClickListener {
             // start Edit/add Schedule Activity
             val intent = Intent(context,Edit_AddScheduleActivity::class.java)
+            schedulesViewModel.getAllSchedules().value?.let {
+                intent.putExtra("schedulesData",it)
+            }
             startActivity(intent)
         }
         return binding.root

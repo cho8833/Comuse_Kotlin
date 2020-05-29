@@ -20,6 +20,4 @@ interface MembersDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addMember(member: Member)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun saveMembers(members: List<Member>)
 }

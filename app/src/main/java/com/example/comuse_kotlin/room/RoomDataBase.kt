@@ -9,7 +9,7 @@ import com.example.comuse_kotlin.dao.SchedulesDao
 import com.example.comuse_kotlin.dataModel.Member
 import com.example.comuse_kotlin.dataModel.ScheduleData
 
-@Database(entities = [Member::class, ScheduleData::class], version = 3, exportSchema = false)
+@Database(entities = [Member::class, ScheduleData::class], version = 4, exportSchema = false)
 abstract class RoomDataBase: RoomDatabase() {
     abstract fun membersDao(): MembersDao
     abstract  fun schedulesDao(): SchedulesDao

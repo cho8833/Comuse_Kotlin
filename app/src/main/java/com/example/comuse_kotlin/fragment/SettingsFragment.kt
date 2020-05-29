@@ -30,7 +30,7 @@ class SettingsFragment : Fragment() {
         super.onCreate(savedInstanceState)
         // get ViewModel
         val factory: ViewModelProvider.Factory = ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
-        userDataViewModel = ViewModelProvider((context as ViewModelStoreOwner?)!!, factory).get(
+        userDataViewModel = ViewModelProvider(activity as ViewModelStoreOwner, factory).get(
             UserDataViewModel::class.java)
     }
 
@@ -42,7 +42,7 @@ class SettingsFragment : Fragment() {
             R.layout.fragment_settings,container,false)
 
         // observer UserData LiveData
-        userDataViewModel.getUserData().observe(this.context as LifecycleOwner, Observer {
+        userDataViewModel.getUserData().observe(activity as ViewModelStoreOwner as LifecycleOwner, Observer {
             binding.userData = it
         })
 
@@ -54,7 +54,7 @@ class SettingsFragment : Fragment() {
                 return@OnClickListener
             }
             // Sign In
-            val intent = Intent(this.context,SignInActivity::class.java)
+            val intent = Intent(this.context, SignInActivity::class.java)
             startActivity(intent)
         })
 

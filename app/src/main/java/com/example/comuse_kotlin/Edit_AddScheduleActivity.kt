@@ -9,31 +9,25 @@ import android.widget.NumberPicker
 import android.widget.TimePicker
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.ViewModelProvider
 import com.example.comuse_kotlin.dataModel.ScheduleData
 import com.example.comuse_kotlin.databinding.ActivityEditAddScheduleBinding
 import com.example.comuse_kotlin.fireStoreService.FirebaseVar
-import com.example.comuse_kotlin.viewModel.SchedulesViewModel
+import com.example.comuse_kotlin.fireStoreService.SchedulesServiceManager
 import java.util.*
-import kotlin.random.Random
 
 
 class Edit_AddScheduleActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEditAddScheduleBinding
-    private lateinit var schedulesViewModel: SchedulesViewModel
     private var dayIndex: Int = 0
+    private var schedulesData: ArrayList<ScheduleData>? = null
+    private lateinit var schedulesServiceManager: SchedulesServiceManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_edit_add_schedule)
         val scheduleData_get = intent.getParcelableExtra<ScheduleData>("get")
 
-        // get Schedules for Compare
-        val factory: ViewModelProvider.Factory =
-            ViewModelProvider.AndroidViewModelFactory.getInstance(this.application)
-        val provider = ViewModelProvider(this, factory)
-        schedulesViewModel = provider.get(SchedulesViewModel::class.java)
-
+        schedulesData = intent.getParcelableArrayListExtra("schedulesData")
+        schedulesServiceManager = SchedulesServiceManager(this)
         //spinner settings
         val spinnerItems = resources.getStringArray(R.array.spinner_day)
         val spinnerAdapter =
@@ -102,7 +96,7 @@ class Edit_AddScheduleActivity : AppCompatActivity() {
                     endMin,
                     get.key
                 )
-                schedulesViewModel.updateSchedule(scheduleData)
+                schedulesServiceManager.updateScheduleInFireStore(scheduleData)
                 finish()
             } else {
                 // notify time invalid
@@ -134,7 +128,7 @@ class Edit_AddScheduleActivity : AppCompatActivity() {
                     endMin,
                     generateKey().toString()
                 )
-                schedulesViewModel.addSchedule(scheduleData)
+                schedulesServiceManager.addScheduleToFireStore(scheduleData)
                 finish()
             } else {
                 // notify time invalid
@@ -160,7 +154,7 @@ class Edit_AddScheduleActivity : AppCompatActivity() {
         }
 
         // 다른 scheduleData 와 비교하여 겹치면 edit 불가
-        schedulesViewModel.getAllSchedules().value?.let { scheduleDatas ->
+        schedulesData?.let { scheduleDatas ->
             for (scheduleData in scheduleDatas) {
                 if (scheduleData.day == day) { /* editData 의 endTime 과 비교데이터의 startTime 비교
                          editData 의 startTime 과 비교데이터의 endTime 비교 */
@@ -242,7 +236,7 @@ class Edit_AddScheduleActivity : AppCompatActivity() {
     }
 
     private fun generateKey(): Int {
-        schedulesViewModel.getAllSchedules().value?.let { schedulesList ->
+        schedulesData?.let { schedulesList ->
             return schedulesList.size + 1
         }
         return 1

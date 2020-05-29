@@ -9,7 +9,7 @@ interface SchedulesDao {
     @Query("SELECT * FROM schedule")
     suspend fun loadSchedules(): List<ScheduleData>
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addSchedule(data: ScheduleData)
 
     @Update

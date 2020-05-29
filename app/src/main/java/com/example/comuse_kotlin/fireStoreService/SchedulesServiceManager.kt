@@ -35,11 +35,15 @@ class SchedulesServiceManager(context: Context) {
 
                                     }
                                     DocumentChange.Type.MODIFIED -> {
-                                        val index = schedulesList.lastIndexOf(scheduleData)
-                                        schedulesList.removeAt(index)
-                                        schedulesList.add(index,scheduleData)
-                                        CoroutineScope(Dispatchers.IO).launch { repository.updateScheduleToLocal(scheduleData) }
-
+                                        for(compare: ScheduleData in schedulesList) {
+                                            if ( compare.key == scheduleData.key) {
+                                                var index = schedulesList.indexOf(compare)
+                                                schedulesList.removeAt(index)
+                                                schedulesList.add(index, scheduleData)
+                                                CoroutineScope(Dispatchers.IO).launch { repository.updateScheduleToLocal(scheduleData) }
+                                                break;
+                                            }
+                                        }
                                     }
                                     DocumentChange.Type.REMOVED -> {
                                         schedulesList.removeAt(schedulesList.lastIndexOf(scheduleData))

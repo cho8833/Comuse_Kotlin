@@ -31,7 +31,8 @@ class MembersServiceManager(private val application: Application) {
                             val member: Member = dc.document.toObject(Member::class.java)
                             when (dc.type) {
                                 DocumentChange.Type.ADDED -> {
-                                    membersList.add(member)
+                                    if (member.inoutStatus) { membersList.add(0,member) }
+                                    else { membersList.add(member) }
 
                                     //notify repository
                                     CoroutineScope(Dispatchers.IO).launch { membersRepository.addMemberToLocal(member) }
@@ -40,13 +41,14 @@ class MembersServiceManager(private val application: Application) {
                                 DocumentChange.Type.MODIFIED -> {
                                     for (compare: Member in membersList) {
                                         if (compare.email == member.email) {
-                                            val index: Int = membersList.indexOf(compare)
+                                            var index: Int = membersList.indexOf(compare)
                                             membersList.removeAt(index)
-                                            membersList.add(index, member)
+                                            if (member.inoutStatus) { membersList.add(0,member) }
+                                            else { membersList.add(member) }
 
                                             //notify repository
                                             CoroutineScope(Dispatchers.IO).launch { membersRepository.updateMemberToLocal(member) }
-
+                                            break;
                                         }
                                     }
                                 }
@@ -58,6 +60,7 @@ class MembersServiceManager(private val application: Application) {
 
                                             //notify repository
                                             CoroutineScope(Dispatchers.IO).launch { membersRepository.removeMemberToLocal(member) }
+                                            break;
 
                                         }
                                     }
