@@ -132,7 +132,7 @@ class Edit_AddScheduleActivity : AppCompatActivity() {
                     startMin,
                     endHour,
                     endMin,
-                    generateRandomKey()
+                    generateKey().toString()
                 )
                 schedulesViewModel.addSchedule(scheduleData)
                 finish()
@@ -241,11 +241,10 @@ class Edit_AddScheduleActivity : AppCompatActivity() {
         }
     }
 
-    private fun generateRandomKey(): String {
-        val charPool : List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
-        return (1..20)
-            .map { i -> Random.nextInt(0, charPool.size) }
-            .map(charPool::get)
-            .joinToString("")
+    private fun generateKey(): Int {
+        schedulesViewModel.getAllSchedules().value?.let { schedulesList ->
+            return schedulesList.size + 1
+        }
+        return 1
     }
 }

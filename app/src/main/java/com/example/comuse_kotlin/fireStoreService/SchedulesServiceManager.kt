@@ -26,6 +26,7 @@ class SchedulesServiceManager(context: Context) {
                         }
                         if (querySnapshot != null && !querySnapshot.isEmpty) {
                             for (documentChange in querySnapshot.documentChanges) {
+                                Log.d("data","document ="+documentChange.document.data+documentChange.type)
                                 var scheduleData = documentChange.document.toObject(ScheduleData::class.java)
                                 when (documentChange.type) {
                                     DocumentChange.Type.ADDED -> {

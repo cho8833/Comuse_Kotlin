@@ -33,7 +33,6 @@ class SchedulesRepository(context: Context) {
             var schedulesArray = ArrayList<ScheduleData>()
             schedulesArray.addAll(schedulesDao.loadSchedules())
             schedules.postValue(schedulesArray)
-
         }
         schedulesServiceManager.getSchedulesFromFireStore(schedules)
     }
