@@ -73,17 +73,17 @@ class Edit_AddScheduleActivity : AppCompatActivity() {
         binding.editTitle.setText(get.classTitle)
         binding.spinner.setSelection(get.day)
         binding.timePickerStart.hour = get.startTimeHour
-        binding.timePickerStart.minute = get.startTimeMinute
+        binding.timePickerStart.minute = get.startTimeMinute / 30
         binding.timePickerEnd.hour = get.endTimeHour
-        binding.timePickerEnd.minute = get.endTimeMinute
+        binding.timePickerEnd.minute = get.endTimeMinute / 30
 
         binding.editTimeConfirm.setOnClickListener {
             val title = binding.editTitle.text.toString()
             val startHour = binding.timePickerStart.hour
-            val startMin = binding.timePickerStart.minute
+            val startMin = binding.timePickerStart.minute * 30   // pickerView 에서는 30으로 표시되지만 index 값은 0분 = 0, 30분 = 1 이기 때문
             val endHour = binding.timePickerEnd.hour
-            val endMin = binding.timePickerEnd.minute
-            val day = binding.spinner.selectedItemPosition
+            val endMin = binding.timePickerEnd.minute       // pickerView 에서는 30으로 표시되지만 index 값은 0분 = 0, 30분 = 1 이기 때문
+            val day = binding.spinner.selectedItemPosition * 30
             if (checkTimeValid(startHour, startMin, endHour, endMin, day, title)) {
                 val scheduleData = ScheduleData(
                     title,
@@ -112,9 +112,9 @@ class Edit_AddScheduleActivity : AppCompatActivity() {
         binding.editTimeConfirm.setOnClickListener {
             val title = binding.editTitle.text.toString()
             val startHour = binding.timePickerStart.hour
-            val startMin = binding.timePickerStart.minute
+            val startMin = binding.timePickerStart.minute * 30      // pickerView 에서는 30으로 표시되지만 index 값은 0분 = 0, 30분 = 1 이기 때문
             val endHour = binding.timePickerEnd.hour
-            val endMin = binding.timePickerEnd.minute
+            val endMin = binding.timePickerEnd.minute * 30          // pickerView 에서는 30으로 표시되지만 index 값은 0분 = 0, 30분 = 1 이기 때문
             val day = binding.spinner.selectedItemPosition
             if (checkTimeValid(startHour, startMin, endHour, endMin, day, title)) {
                 val scheduleData = ScheduleData(

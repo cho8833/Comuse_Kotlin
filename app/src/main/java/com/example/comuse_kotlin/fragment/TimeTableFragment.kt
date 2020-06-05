@@ -12,9 +12,11 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import com.example.comuse_kotlin.Edit_AddScheduleActivity
+import com.example.comuse_kotlin.MainActivity
 import com.example.comuse_kotlin.R
 import com.example.comuse_kotlin.dataModel.ScheduleData
 import com.example.comuse_kotlin.databinding.FragmentTimeTableBinding
+import com.example.comuse_kotlin.fireStoreService.FirebaseVar
 import com.example.comuse_kotlin.viewModel.SchedulesViewModel
 import com.github.tlaabs.timetableview.Schedule
 
@@ -27,6 +29,7 @@ class TimeTableFragment : Fragment() {
         super.onCreate(savedInstanceState)
         val factory: ViewModelProvider.Factory = ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
         schedulesViewModel = ViewModelProvider(activity as ViewModelStoreOwner, factory).get(SchedulesViewModel::class.java)
+
     }
 
     override fun onCreateView(
@@ -49,11 +52,13 @@ class TimeTableFragment : Fragment() {
         // add/edit ScheduleButton
         binding.addScheduleBtn.setOnClickListener {
             // start Edit/add Schedule Activity
-            val intent = Intent(context,Edit_AddScheduleActivity::class.java)
-            schedulesViewModel.getAllSchedules().value?.let {
-                intent.putExtra("schedulesData",it)
-            }
-            startActivity(intent)
+            if (FirebaseVar.user != null && FirebaseVar.dbFIB != null) {
+                    val intent = Intent(context,Edit_AddScheduleActivity::class.java)
+                    schedulesViewModel.getAllSchedules().value?.let {
+                        intent.putExtra("schedulesData",it)
+                    }
+                    startActivity(intent)
+                }
         }
         return binding.root
     }
