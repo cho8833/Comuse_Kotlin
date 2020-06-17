@@ -19,6 +19,7 @@ import com.example.comuse_kotlin.databinding.FragmentTimeTableBinding
 import com.example.comuse_kotlin.fireStoreService.FirebaseVar
 import com.example.comuse_kotlin.viewModel.SchedulesViewModel
 import com.github.tlaabs.timetableview.Schedule
+import com.google.firebase.auth.FirebaseAuth
 
 
 class TimeTableFragment : Fragment() {
@@ -38,29 +39,42 @@ class TimeTableFragment : Fragment() {
     ): View? {
         binding = DataBindingUtil.inflate(inflater,R.layout.fragment_time_table,container,false)
 
-        // draw TimeTable
-        schedulesViewModel.getAllSchedules().observe(activity as LifecycleOwner, Observer {
+        //bind data to TimeTable
+        bindSchedules()
+
+        // check user signed in
+        FirebaseAuth.getInstance().addAuthStateListener { auth ->
+            auth.currentUser?.let { user ->
+                // signed in
+                schedulesViewModel.getAllSchedules()
+                setScheduleAddButtonClickListener()
+                return@addAuthStateListener
+            }
+            // signed out
+            FirebaseVar.timeTableListener?.remove()
+            schedulesViewModel.schedulesForView.postValue(ArrayList())
+        }
+
+
+        return binding.root
+    }
+    private fun bindSchedules() {
+        schedulesViewModel.schedulesForView.observe(activity as LifecycleOwner, Observer {
             binding.timetable.removeAll()
             for(scheduleData: ScheduleData in it) {
                 var scheduleArray = ArrayList<Schedule>()
                 scheduleArray.add(ScheduleData.dataToSchedule(scheduleData))
                 binding.timetable.add(scheduleArray)
             }
-
         })
-
-        // add/edit ScheduleButton
+    }
+    private fun setScheduleAddButtonClickListener() {
+        // start Edit_AddScheduleActivity
         binding.addScheduleBtn.setOnClickListener {
-            // start Edit/add Schedule Activity
-            if (FirebaseVar.user != null && FirebaseVar.dbFIB != null) {
-                    val intent = Intent(context,Edit_AddScheduleActivity::class.java)
-                    schedulesViewModel.getAllSchedules().value?.let {
-                        intent.putExtra("schedulesData",it)
-                    }
-                    startActivity(intent)
-                }
+            val intent = Intent(context,Edit_AddScheduleActivity::class.java)
+            startActivity(intent)
         }
-        return binding.root
+
     }
 
 }

@@ -8,15 +8,14 @@ import com.example.comuse_kotlin.dataModel.ScheduleData
 import com.example.comuse_kotlin.repository.SchedulesRepository
 
 class SchedulesViewModel(application: Application): AndroidViewModel(application) {
-    private val schedules: MutableLiveData<ArrayList<ScheduleData>> by lazy {
-        repository.getSchedules()
+    public val schedulesForView: MutableLiveData<ArrayList<ScheduleData>> by lazy {
         return@lazy repository.schedules
     }
     private val repository: SchedulesRepository by lazy {
         SchedulesRepository(application)
     }
-    fun getAllSchedules(): MutableLiveData<ArrayList<ScheduleData>> {
-        return schedules
+    fun getAllSchedules() {
+        repository.getSchedules()
     }
     fun updateSchedule(scheduleData: ScheduleData) {
         repository.updateSchedule(scheduleData)

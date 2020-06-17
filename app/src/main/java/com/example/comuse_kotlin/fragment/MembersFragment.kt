@@ -10,8 +10,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.comuse_kotlin.MemberRecyclerViewAdapter
 import com.example.comuse_kotlin.dataModel.Member
 import com.example.comuse_kotlin.databinding.FragmentMembersBinding
+import com.example.comuse_kotlin.fireStoreService.FirebaseVar
 import com.example.comuse_kotlin.viewModel.MembersViewModel
 import com.example.comuse_kotlin.viewModel.UserDataViewModel
+import com.google.firebase.auth.FirebaseAuth
+
 
 class MembersFragment : Fragment() {
     private lateinit var membersViewModel: MembersViewModel
@@ -32,26 +35,50 @@ class MembersFragment : Fragment() {
     ): View? {
         binding = FragmentMembersBinding.inflate(inflater,container,false)
 
+        // recyclerview settings
         binding.membersRecyclerView.layoutManager = LinearLayoutManager(this.context)
         binding.membersRecyclerView.adapter = MemberRecyclerViewAdapter(this.context!!)
 
-        membersViewModel.getAllMembers().observe(activity as LifecycleOwner, Observer {
+        // bind data
+        bindMembers()
+        bindUserInfo()
+
+        // check user signed in
+        FirebaseAuth.getInstance().addAuthStateListener { auth ->
+            auth.currentUser?.let { _ ->
+                // signed in
+                membersViewModel.getAllMembers()
+                userDataViewModel.getUserData()
+                return@addAuthStateListener
+            }
+            // signed out
+            FirebaseVar.memberListener?.remove()
+            membersViewModel.membersForView.postValue(ArrayList())
+            userDataViewModel.userDataForView.postValue(Member())
+        }
+
+
+        // Inflate the layout for this fragment
+        return binding.root
+    }
+
+    private fun bindMembers() {
+        membersViewModel.membersForView.observe(activity as LifecycleOwner, Observer {
             var adapter = binding.membersRecyclerView.adapter as MemberRecyclerViewAdapter
             if (adapter != null) {
                 adapter.setMembersList(it)
                 adapter.notifyDataSetChanged()
             }
         })
-        userDataViewModel.getUserData().observe(activity as LifecycleOwner, Observer {
+    }
+    private fun bindUserInfo() {
+        userDataViewModel.userDataForView.observe(activity as LifecycleOwner, Observer {
             updateUserInfo(it)
         })
-        // Inflate the layout for this fragment
-        return binding.root
     }
-    fun updateUserInfo(member: Member) {
+    private fun updateUserInfo(member: Member) {
         binding.userMemberData = member
         if (member.inoutStatus) { binding.buttonInOut.text = "in" }
         else { binding.buttonInOut.text = "out" }
     }
-
 }

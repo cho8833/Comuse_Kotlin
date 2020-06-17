@@ -16,65 +16,78 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import com.example.comuse_kotlin.R
 import com.example.comuse_kotlin.SignInActivity
+import com.example.comuse_kotlin.dataModel.Member
 import com.example.comuse_kotlin.databinding.FragmentSettingsBinding
 import com.example.comuse_kotlin.fireStoreService.FirebaseVar
 import com.example.comuse_kotlin.viewModel.UserDataViewModel
 import com.google.firebase.auth.FirebaseAuth
 
-/**
- * A simple [Fragment] subclass.
- */
 class SettingsFragment : Fragment() {
-    lateinit var userDataViewModel: UserDataViewModel
+
+    private lateinit var userDataViewModel: UserDataViewModel
+    private lateinit var binding: FragmentSettingsBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // get ViewModel
         val factory: ViewModelProvider.Factory = ViewModelProvider.AndroidViewModelFactory.getInstance(activity!!.application)
-        userDataViewModel = ViewModelProvider(activity as ViewModelStoreOwner, factory).get(
-            UserDataViewModel::class.java)
+        userDataViewModel = ViewModelProvider(activity as ViewModelStoreOwner, factory).get(UserDataViewModel::class.java)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        var binding = DataBindingUtil.inflate<FragmentSettingsBinding>(inflater,
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        binding = DataBindingUtil.inflate(inflater,
             R.layout.fragment_settings,container,false)
 
-        // observer UserData LiveData
-        userDataViewModel.getUserData().observe(activity as ViewModelStoreOwner as LifecycleOwner, Observer {
-            binding.userData = it
-        })
+        // bind data
+        bindUserInfo()
 
-        // init signIn/Out button
-        binding.buttonSignInout.setOnClickListener(View.OnClickListener {
-            FirebaseVar.user?.let {
-                // Sign Out
-                signOut()
-                return@OnClickListener
+        // check user signed in
+        FirebaseAuth.getInstance().addAuthStateListener { auth ->
+            auth.currentUser?.let { _ ->
+                // signed in
+                userDataViewModel.getUserData()
+                setSignOutButtonClickListener()
+                setPositionEditButtonClickListener()
+                return@addAuthStateListener
             }
-            // Sign In
-            val intent = Intent(this.context, SignInActivity::class.java)
-            startActivity(intent)
-        })
+            // signed out
+            userDataViewModel.userDataForView.postValue(Member())
+            setSignInButtonClickListener()
+        }
 
-        // init edit Position Button
-        binding.buttonPositionEdit.setOnClickListener(View.OnClickListener {
-            FirebaseVar.user?.let { _ ->
-                FirebaseVar.dbFIB?.let { _ ->
-                    initPositionEditTextDialog().create().show()
-                }
-            }
-        })
+
         return binding.root
+    }
+
+    private fun bindUserInfo() {
+        userDataViewModel.userDataForView.observe(activity as ViewModelStoreOwner as LifecycleOwner, Observer { member ->
+            binding.userData = member
+        })
     }
 
     private fun signOut() {
         FirebaseAuth.getInstance().signOut()
         FirebaseVar.user = null
         FirebaseVar.dbFIB = null
-        FirebaseVar.memberListener = null
-        FirebaseVar.timeTableListener = null
+
+    }
+    private fun setPositionEditButtonClickListener() {
+        binding.buttonPositionEdit.setOnClickListener {
+            initPositionEditTextDialog().create().show()
+        }
+    }
+    private fun setSignInButtonClickListener() {
+        binding.buttonSignInout.text = "Sign In"
+        binding.buttonSignInout.setOnClickListener {
+            val intent = Intent(this.context, SignInActivity::class.java)
+            startActivity(intent)
+        }
+    }
+    private fun setSignOutButtonClickListener() {
+        binding.buttonSignInout.text = "Sign Out"
+        binding.buttonSignInout.setOnClickListener {
+            signOut()
+        }
     }
     private fun initPositionEditTextDialog(): AlertDialog.Builder {
         val editText = EditText(context)

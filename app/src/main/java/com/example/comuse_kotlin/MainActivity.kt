@@ -17,13 +17,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         dataBinding = DataBindingUtil.setContentView(this,R.layout.activity_main)
-
-        // create ViewModelFactory
-        val memberFactory=
-            MembersViewModelFactory(
-                application
-            )
-        memberFactory.create(MembersViewModel::class.java)
         
 
         // BottomNavigationView Settings
