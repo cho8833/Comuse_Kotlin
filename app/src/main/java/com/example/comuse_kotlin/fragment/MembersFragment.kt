@@ -66,8 +66,7 @@ class MembersFragment : Fragment() {
         membersViewModel.membersForView.observe(activity as LifecycleOwner, Observer {
             var adapter = binding.membersRecyclerView.adapter as MemberRecyclerViewAdapter
             if (adapter != null) {
-                adapter.setMembersList(it)
-                adapter.notifyDataSetChanged()
+                adapter.updateMemberItemsList(it)
             }
         })
     }

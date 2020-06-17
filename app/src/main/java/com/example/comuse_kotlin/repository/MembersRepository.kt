@@ -35,6 +35,7 @@ class MembersRepository(private val application: Application) {
         // FireStore 의 snapshot 리스너가 활성화 되어있지 않을 때 데이터를 local 과 server 에서 가져온다.
         CoroutineScope(Dispatchers.IO).launch {
             var membersArray = ArrayList<Member>()
+
             membersArray.addAll(membersDao.loadMembers())
             members.postValue(membersArray)
         }

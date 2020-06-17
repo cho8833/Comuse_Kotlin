@@ -35,7 +35,7 @@ class MembersServiceManager(private val application: Application) {
                                     else { membersList.add(member) }
 
                                     //notify repository
-                                    CoroutineScope(Dispatchers.IO).launch { membersRepository.addMemberToLocal(member) }
+                                    membersRepository.addMemberToLocal(member)
 
                                 }
                                 DocumentChange.Type.MODIFIED -> {
@@ -47,7 +47,7 @@ class MembersServiceManager(private val application: Application) {
                                             else { membersList.add(member) }
 
                                             //notify repository
-                                            CoroutineScope(Dispatchers.IO).launch { membersRepository.updateMemberToLocal(member) }
+                                            membersRepository.updateMemberToLocal(member)
                                             break;
                                         }
                                     }
@@ -59,7 +59,7 @@ class MembersServiceManager(private val application: Application) {
                                             membersList.removeAt(index)
 
                                             //notify repository
-                                            CoroutineScope(Dispatchers.IO).launch { membersRepository.removeMemberToLocal(member) }
+                                            membersRepository.removeMemberToLocal(member)
                                             break;
 
                                         }

@@ -9,7 +9,7 @@ interface MembersDao {
     @Insert
     suspend fun addMembers(members: List<Member>)
 
-    @Query("SELECT * FROM member")
+    @Query("SELECT * FROM member ORDER BY inoutStatus DESC")
     suspend fun loadMembers(): List<Member>
     @Delete
     suspend fun deleteMember(member: Member)
