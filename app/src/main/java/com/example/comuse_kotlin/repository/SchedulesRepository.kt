@@ -7,6 +7,7 @@ import com.example.comuse_kotlin.dataModel.ScheduleData
 import com.example.comuse_kotlin.fireStoreService.FirebaseVar
 import com.example.comuse_kotlin.fireStoreService.SchedulesServiceManager
 import com.example.comuse_kotlin.room.RoomDataBase
+import io.reactivex.disposables.Disposable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,6 +23,7 @@ class SchedulesRepository(context: Context) {
     private val schedulesDao: SchedulesDao by lazy {
         RoomDataBase.getInstance(context)!!.schedulesDao()
     }
+    private var globalDisposable: Disposable? = null
     var schedules: MutableLiveData<ArrayList<ScheduleData>> = MutableLiveData()
 
     fun getSchedules() {
@@ -34,26 +36,28 @@ class SchedulesRepository(context: Context) {
             schedulesArray.addAll(schedulesDao.loadSchedules())
             schedules.postValue(schedulesArray)
         }
-        schedulesServiceManager.getSchedulesFromFireStore(schedules)
-    }
-    fun updateSchedule(scheduleData: ScheduleData) {
-        CoroutineScope(Dispatchers.IO).launch {
-            schedulesDao.updateSchedule(scheduleData)
+        schedulesServiceManager.clearList()
+        schedulesServiceManager.getSchedulesFromFireStore()
+        globalDisposable = schedulesServiceManager.schedulesSubject.subscribe { scheduleDataList ->
+            schedules.postValue(scheduleDataList)
         }
+    }
+    fun unsubscribeGlobal() {
+        globalDisposable?.dispose()
+    }
+
+    // ************ Global Data Control ************
+    fun updateSchedule(scheduleData: ScheduleData) {
         schedulesServiceManager.updateScheduleInFireStore(scheduleData)
     }
     fun deleteSchedule(scheduleData: ScheduleData) {
-        CoroutineScope(Dispatchers.IO).launch {
-            schedulesDao.deleteSchedule(scheduleData)
-        }
         schedulesServiceManager.deleteScheduleInFireStore(scheduleData)
     }
     fun addSchedule(scheduleData: ScheduleData) {
-        CoroutineScope(Dispatchers.IO).launch {
-            schedulesDao.addSchedule(scheduleData)
-        }
         schedulesServiceManager.addScheduleToFireStore(scheduleData)
     }
+
+    // ************ Local Data Control ************
     fun addScheduleToLocal(scheduleData: ScheduleData) {
         CoroutineScope(Dispatchers.IO).launch {
             schedulesDao.addSchedule(scheduleData)

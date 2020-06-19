@@ -53,11 +53,11 @@ class TimeTableFragment : Fragment() {
             // signed out
             FirebaseVar.timeTableListener?.remove()
             schedulesViewModel.schedulesForView.postValue(ArrayList())
+            schedulesViewModel.stopGettingData()
         }
-
-
         return binding.root
     }
+
     private fun bindSchedules() {
         schedulesViewModel.schedulesForView.observe(activity as LifecycleOwner, Observer {
             binding.timetable.removeAll()

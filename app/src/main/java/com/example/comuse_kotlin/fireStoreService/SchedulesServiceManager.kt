@@ -7,15 +7,14 @@ import androidx.lifecycle.MutableLiveData
 import com.example.comuse_kotlin.dataModel.ScheduleData
 import com.example.comuse_kotlin.repository.SchedulesRepository
 import com.google.firebase.firestore.DocumentChange
-import com.google.firebase.firestore.EventListener
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import io.reactivex.subjects.ReplaySubject
 
 class SchedulesServiceManager(context: Context) {
     private var schedulesList: ArrayList<ScheduleData> = ArrayList()
     private val repository: SchedulesRepository = SchedulesRepository(context)
-    fun getSchedulesFromFireStore(schedules: MutableLiveData<ArrayList<ScheduleData>>) {
+    public var schedulesSubject: ReplaySubject<ArrayList<ScheduleData>> = ReplaySubject.createWithSize(20)
+
+    fun getSchedulesFromFireStore() {
         FirebaseVar.user?.let { _ ->
             FirebaseVar.dbFIB?.let { db ->
                 FirebaseVar.timeTableListener = db.collection("TimeTable")
@@ -31,7 +30,7 @@ class SchedulesServiceManager(context: Context) {
                                 when (documentChange.type) {
                                     DocumentChange.Type.ADDED -> {
                                         schedulesList.add(scheduleData)
-                                        CoroutineScope(Dispatchers.IO).launch { repository.addScheduleToLocal(scheduleData) }
+                                        repository.addScheduleToLocal(scheduleData)
 
                                     }
                                     DocumentChange.Type.MODIFIED -> {
@@ -40,20 +39,20 @@ class SchedulesServiceManager(context: Context) {
                                                 var index = schedulesList.indexOf(compare)
                                                 schedulesList.removeAt(index)
                                                 schedulesList.add(index, scheduleData)
-                                                CoroutineScope(Dispatchers.IO).launch { repository.updateScheduleToLocal(scheduleData) }
+                                                repository.updateScheduleToLocal(scheduleData)
                                                 break;
                                             }
                                         }
                                     }
                                     DocumentChange.Type.REMOVED -> {
                                         schedulesList.removeAt(schedulesList.lastIndexOf(scheduleData))
-                                        CoroutineScope(Dispatchers.IO).launch { repository.deleteScheduleToLocal(scheduleData) }
+                                        repository.deleteScheduleToLocal(scheduleData)
 
                                     }
                                 }
                             }
                             // post value
-                            schedules.postValue(schedulesList)
+                            schedulesSubject.onNext(schedulesList)
                         }
                     }
             }
@@ -89,5 +88,8 @@ class SchedulesServiceManager(context: Context) {
                     .set(scheduleData)
             }
         }
+    }
+    fun clearList() {
+        this.schedulesList.clear()
     }
 }

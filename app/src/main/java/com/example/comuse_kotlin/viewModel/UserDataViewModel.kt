@@ -17,12 +17,15 @@ class UserDataViewModel(application: Application): AndroidViewModel(application)
         repository.getUserData()
     }
     fun updateInoutStatus(inoutStatus: Boolean) {
-        repository.updateInOutStatus(inoutStatus)
+        repository.updateInOutStatusInGlobal(inoutStatus)
     }
     fun updatePosition(position: String) {
-        repository.updatePosition(position)
+        repository.updatePositionInGlobal(position)
     }
     fun addUserData(member: Member) {
-        repository.addUserData(member)
+        repository.addUserDataInGlobal(member)
+    }
+    fun stopGettingData() {
+        repository.unsubscribeGlobal()
     }
 }

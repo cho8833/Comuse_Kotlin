@@ -17,4 +17,7 @@ class MembersViewModel(application: Application): AndroidViewModel(application) 
     fun getAllMembers() {
         repository.getAllMembers()
     }
+    fun stopGettingData() {
+        repository.unSubscribeGlobal()
+    }
 }

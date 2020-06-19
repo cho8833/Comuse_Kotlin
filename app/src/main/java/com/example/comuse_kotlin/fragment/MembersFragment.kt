@@ -20,6 +20,7 @@ class MembersFragment : Fragment() {
     private lateinit var membersViewModel: MembersViewModel
     private lateinit var userDataViewModel: UserDataViewModel
     lateinit var binding: FragmentMembersBinding
+    private var userData: Member? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,19 +56,20 @@ class MembersFragment : Fragment() {
             FirebaseVar.memberListener?.remove()
             membersViewModel.membersForView.postValue(ArrayList())
             userDataViewModel.userDataForView.postValue(Member())
+            membersViewModel.stopGettingData()
+            userDataViewModel.stopGettingData()
         }
 
-
-        // Inflate the layout for this fragment
+        //init inout Button
+        initInoutButton()
         return binding.root
     }
+
 
     private fun bindMembers() {
         membersViewModel.membersForView.observe(activity as LifecycleOwner, Observer {
             var adapter = binding.membersRecyclerView.adapter as MemberRecyclerViewAdapter
-            if (adapter != null) {
-                adapter.updateMemberItemsList(it)
-            }
+            adapter.updateMemberItemsList(it)
         })
     }
     private fun bindUserInfo() {
@@ -76,8 +78,14 @@ class MembersFragment : Fragment() {
         })
     }
     private fun updateUserInfo(member: Member) {
+        userData = member
         binding.userMemberData = member
         if (member.inoutStatus) { binding.buttonInOut.text = "in" }
         else { binding.buttonInOut.text = "out" }
+    }
+    private fun initInoutButton() {
+        binding.buttonInOut.setOnClickListener {
+            userDataViewModel.updateInoutStatus(!(userData?.inoutStatus!!))
+        }
     }
 }

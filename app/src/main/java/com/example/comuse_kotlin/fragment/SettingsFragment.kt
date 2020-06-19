@@ -27,6 +27,8 @@ class SettingsFragment : Fragment() {
     private lateinit var userDataViewModel: UserDataViewModel
     private lateinit var binding: FragmentSettingsBinding
 
+    private var userData: Member? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // get ViewModel
@@ -47,21 +49,24 @@ class SettingsFragment : Fragment() {
                 // signed in
                 userDataViewModel.getUserData()
                 setSignOutButtonClickListener()
-                setPositionEditButtonClickListener()
                 return@addAuthStateListener
             }
             // signed out
             userDataViewModel.userDataForView.postValue(Member())
             setSignInButtonClickListener()
+            userDataViewModel.stopGettingData()
         }
 
-
+        // init position edit button
+        setPositionEditButtonClickListener()
         return binding.root
     }
+
 
     private fun bindUserInfo() {
         userDataViewModel.userDataForView.observe(activity as ViewModelStoreOwner as LifecycleOwner, Observer { member ->
             binding.userData = member
+            userData = member
         })
     }
 
@@ -69,11 +74,14 @@ class SettingsFragment : Fragment() {
         FirebaseAuth.getInstance().signOut()
         FirebaseVar.user = null
         FirebaseVar.dbFIB = null
+        FirebaseVar.timeTableListener?.remove()
+        FirebaseVar.memberListener?.remove()
 
     }
     private fun setPositionEditButtonClickListener() {
         binding.buttonPositionEdit.setOnClickListener {
-            initPositionEditTextDialog().create().show()
+            if ( this.userData != null)
+                initPositionEditTextDialog().create().show()
         }
     }
     private fun setSignInButtonClickListener() {

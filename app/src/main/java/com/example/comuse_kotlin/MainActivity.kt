@@ -8,8 +8,6 @@ import com.example.comuse_kotlin.databinding.ActivityMainBinding
 import com.example.comuse_kotlin.fragment.MembersFragment
 import com.example.comuse_kotlin.fragment.SettingsFragment
 import com.example.comuse_kotlin.fragment.TimeTableFragment
-import com.example.comuse_kotlin.viewModel.MembersViewModel
-import com.example.comuse_kotlin.viewModel.MembersViewModelFactory
 
 class MainActivity : AppCompatActivity() {
 

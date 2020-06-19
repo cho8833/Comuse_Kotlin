@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import com.example.comuse_kotlin.dataModel.Member
 import com.example.comuse_kotlin.fireStoreService.UserMemberServiceManager
 import com.example.comuse_kotlin.sharedPreferences.UserDataPreferences
+import io.reactivex.disposables.Disposable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -20,38 +21,49 @@ class UserDataRepository(private val context: Context) {
     private val userDataPreferences: UserDataPreferences by lazy {
         UserDataPreferences(context)
     }
-
+    private var disposableGlobal: Disposable? = null
     fun getUserData() {
         // get data from local
         CoroutineScope(Dispatchers.IO).launch {
-            val member = userDataPreferences.loadUserData()
             userMemberData.postValue(userDataPreferences.loadUserData())
         }
 
         // get data from FireStore
-        userMemberServiceManager.getUserDataFromFireStore(userMemberData)
+        userMemberServiceManager.getUserDataFromFireStore()
+        disposableGlobal = userMemberServiceManager.userDataSubject.subscribe { userData ->
+            userMemberData.postValue(userData)
+        }
+    }
+    fun unsubscribeGlobal() {
+        disposableGlobal?.dispose()
     }
 
-    fun updateInOutStatus(inoutStatus: Boolean) {
-        // update data in local
-        userDataPreferences.updateUserData(inoutStatus,null)
-        // update data in global
-        userMemberServiceManager.updateInoutStatusToFireStore(userMemberData,inoutStatus)
+    // ************ Global Data Control ************
+    fun addUserDataInGlobal(member: Member) {
+        userMemberServiceManager.addUserDataToFireStore(member)
     }
-    fun updatePosition(position: String) {
-        // update data in local
-        userDataPreferences.updateUserData(null,position)
-        // update data in global
-        userMemberServiceManager.updatePositionToFireStore(userMemberData,position)
+    fun updateInOutStatusInGlobal(inoutStatus: Boolean) {
+        userMemberServiceManager.updateInoutStatusToFireStore(inoutStatus)
     }
-    fun addUserData(member: Member) {
-        // add data in local
-        userDataPreferences.saveUserData(member)
-        // add data in global
-        userMemberServiceManager.addUserDataToFireStore(userMemberData,member)
+    fun updatePositionInGlobal(position: String) {
+        userMemberServiceManager.updatePositionToFireStore(position)
     }
+
+    // ************ Local Data Control ************
     fun saveUserDataToLocal(member: Member) {
+        CoroutineScope(Dispatchers.IO).launch {
+            userDataPreferences.saveUserData(member)
+        }
         userDataPreferences.saveUserData(member)
     }
-
+    fun updateInOutStatusInLocal(inoutStatus: Boolean) {
+        CoroutineScope(Dispatchers.IO).launch {
+            userDataPreferences.updateUserData(inoutStatus,null)
+        }
+    }
+    fun updatePositionInLocal(position: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            userDataPreferences.updateUserData(null,position)
+        }
+    }
 }

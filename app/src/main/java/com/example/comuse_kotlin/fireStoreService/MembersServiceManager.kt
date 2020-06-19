@@ -8,16 +8,21 @@ import com.example.comuse_kotlin.dataModel.Member
 import com.example.comuse_kotlin.repository.MembersRepository
 
 import com.google.firebase.firestore.DocumentChange
+import io.reactivex.Observable
+import io.reactivex.subjects.ReplaySubject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MembersServiceManager(private val application: Application) {
     private var membersList: ArrayList<Member> = ArrayList()
+
+    public var membersSubject: ReplaySubject<ArrayList<Member>> = ReplaySubject.createWithSize(100)
+
     private val membersRepository: MembersRepository by lazy {
         MembersRepository(application)
     }
-    fun getMembersFromFireStore(members: MutableLiveData<ArrayList<Member>>) {
+    fun getMembersFromFireStore() {
         FirebaseVar.user?.let { _ ->
             FirebaseVar.dbFIB?.let { db ->
                 FirebaseVar.memberListener = db.collection("Members").addSnapshotListener { snapshot, e ->
@@ -36,7 +41,6 @@ class MembersServiceManager(private val application: Application) {
 
                                     //notify repository
                                     membersRepository.addMemberToLocal(member)
-
                                 }
                                 DocumentChange.Type.MODIFIED -> {
                                     for (compare: Member in membersList) {
@@ -67,10 +71,14 @@ class MembersServiceManager(private val application: Application) {
                                 }
                             }
                         }
-                        members.postValue(membersList)
+
+                        membersSubject.onNext(membersList)
                     }
                 }
             }
         }
+    }
+    fun clearList() {
+        this.membersList.clear()
     }
 }

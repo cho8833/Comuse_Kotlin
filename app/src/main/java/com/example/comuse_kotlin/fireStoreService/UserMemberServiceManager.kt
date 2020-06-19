@@ -1,21 +1,20 @@
 package com.example.comuse_kotlin.fireStoreService
 
 
-import android.app.Application
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import com.example.comuse_kotlin.dataModel.Member
 import com.example.comuse_kotlin.repository.UserDataRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import io.reactivex.subjects.ReplaySubject
 
 class UserMemberServiceManager(context: Context) {
 
     private val repository: UserDataRepository by lazy {
         UserDataRepository(context)
     }
-    fun getUserDataFromFireStore(userMemberData: MutableLiveData<Member>) {
+    public var userDataSubject: ReplaySubject<Member> = ReplaySubject.createWithSize(1)
+    private var userData: Member? = null
+    fun getUserDataFromFireStore() {
         FirebaseVar.user?.let {  fireStoreUser ->
             FirebaseVar.dbFIB?.let { db ->
                 db.collection("Members").document(fireStoreUser.email!!)
@@ -24,13 +23,12 @@ class UserMemberServiceManager(context: Context) {
                         documentSnapshot.toObject(Member::class.java)?.let { memberData ->
                             // get document success but no document
                             if (memberData == null) {
-                                repository.addUserData(Member(fireStoreUser.displayName!!,fireStoreUser.email!!,"",false))
+                                repository.addUserDataInGlobal(Member(fireStoreUser.displayName!!,fireStoreUser.email!!,"",false))
                             } else {
                                 // get document success
-                                userMemberData.postValue(memberData)
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    repository.saveUserDataToLocal(memberData)
-                                }
+                                this.userData = memberData
+                                userDataSubject.onNext(memberData)
+                                repository.saveUserDataToLocal(memberData)
                             }
                         }
                     }
@@ -40,14 +38,16 @@ class UserMemberServiceManager(context: Context) {
             }
         }
     }
-    fun addUserDataToFireStore(userMemberData: MutableLiveData<Member>, data: Member) {
+    fun addUserDataToFireStore(data: Member) {
         FirebaseVar.user?.let { fireStoreUser ->
             FirebaseVar.dbFIB?.let { db ->
                 db.collection("Members").document(fireStoreUser.email!!)
                     .set(data)
                     .addOnSuccessListener {
                         // add document success
-                        userMemberData.postValue(data)
+                        this.userData = data
+                        userDataSubject.onNext(data)
+                        repository.saveUserDataToLocal(data)
                     }
                     .addOnFailureListener { exception ->
                         // add document fail
@@ -55,14 +55,16 @@ class UserMemberServiceManager(context: Context) {
             }
         }
     }
-    fun updateInoutStatusToFireStore(userMemberData: MutableLiveData<Member>, inoutStatus: Boolean) {
+    fun updateInoutStatusToFireStore(inoutStatus: Boolean) {
         FirebaseVar.user?.let { user ->
             FirebaseVar.dbFIB?.let { db ->
                 db.collection("Members").document(user.email!!)
                     .update("inoutStatus",inoutStatus)
                     .addOnSuccessListener {
                         // update inoutStatus success
-                        userMemberData.postValue(Member(userMemberData.value!!.name,userMemberData.value!!.email,userMemberData.value!!.position,inoutStatus))
+                        this.userData?.inoutStatus = inoutStatus
+                        userDataSubject.onNext(this.userData!!)
+                        repository.updateInOutStatusInLocal(inoutStatus)
                     }
                     .addOnFailureListener{ exception ->
                         // update inoutStatus fail
@@ -71,14 +73,16 @@ class UserMemberServiceManager(context: Context) {
             }
         }
     }
-    fun updatePositionToFireStore(userMemberData: MutableLiveData<Member>, position: String) {
+    fun updatePositionToFireStore(position: String) {
         FirebaseVar.user?.let { user ->
             FirebaseVar.dbFIB?.let { db ->
                 db.collection("Members").document(user.email!!)
                     .update("position",position)
                     .addOnSuccessListener {
                         // update position success
-                        userMemberData.postValue(Member(userMemberData.value!!.name,userMemberData.value!!.email,position,userMemberData.value!!.inoutStatus))
+                        this.userData?.position = position
+                        userDataSubject.onNext(this.userData!!)
+                        repository.updatePositionInLocal(position)
                     }
                     .addOnFailureListener { exception ->
                         // update position fail

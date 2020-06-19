@@ -17,10 +17,16 @@ class SchedulesViewModel(application: Application): AndroidViewModel(application
     fun getAllSchedules() {
         repository.getSchedules()
     }
+    fun stopGettingData() {
+        repository.unsubscribeGlobal()
+    }
     fun updateSchedule(scheduleData: ScheduleData) {
         repository.updateSchedule(scheduleData)
     }
     fun addSchedule(scheduleData: ScheduleData) {
         repository.addSchedule(scheduleData)
+    }
+    fun deleteSchedule(scheduleData: ScheduleData) {
+        repository.deleteSchedule(scheduleData)
     }
 }
